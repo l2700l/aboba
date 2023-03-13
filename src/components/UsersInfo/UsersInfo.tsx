@@ -1,13 +1,21 @@
-import { useState } from "react"
+import { useEffect, useState } from 'react'
 import { Form } from "react-bootstrap"
 import { useSelector } from "react-redux"
 import { RootStore } from "../../redux/store"
 import { usersType } from "../../types/user"
+import { ETH } from '../../api/connect';
 
 const UsersInfo = () => {
     const [selected, setSelected] = useState('selected')
     const user = useSelector((state: RootStore) => state.user)
     const [users, setUsers] = useState<usersType>()
+    useEffect(() => {
+        const fetch = async () => {
+            const users_data = await ETH.getUsers()
+            setUsers(users_data)
+        }
+        fetch()
+    }, [])
     const currentUser = users?.data?.find((user) => user.address === selected)
     return <div>
         <div>
@@ -18,7 +26,7 @@ const UsersInfo = () => {
             {currentUser && <div>
                     <p>Адрес: {currentUser.address}</p>
                     {(user?.data?.role === 'owner' || user?.data?.role === 'public') &&<p>Public: {currentUser.publicBalance}</p>}
-                    {(user?.data?.role === 'owner' || user?.data?.role === 'private') &&<p>Public: {currentUser.privateBalance}</p>}
+                    {(user?.data?.role === 'owner' || user?.data?.role === 'private') &&<p>Private: {currentUser.privateBalance}</p>}
                 </div>}
         </div>
     </div>

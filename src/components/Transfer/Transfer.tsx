@@ -1,13 +1,23 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
+import { ETH } from '../../api/connect';
+import { updateBalance, updateUser } from '../../redux/store';
+import { useDispatch } from 'react-redux';
 
 const Transfer = () => {
     const [address, setAddress] = useState('');
     const [amount, setAmount] = useState('');
     const [error, setError] = useState<string>();
-
+    const dispatch = useDispatch()
     const onClick = async () => {
-
+      try {
+        await ETH.transfer(address, +amount)
+        const balance = await ETH.getBalance();
+        dispatch(updateBalance({data: balance}))
+      } catch (e) {
+        // @ts-ignore
+        setError(e.data.message)
+      }
     }
     return (
         <div>

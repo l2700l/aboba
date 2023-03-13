@@ -1,11 +1,27 @@
 import { Button, ButtonGroup } from "react-bootstrap"
-import { whitelistRequests } from "../../types/whitelistRequests"
+import { whitelistRequests } from '../../types/whitelistRequests';
+import { useEffect, useState } from 'react';
+import { ETH } from '../../api/connect';
+import { updateBalance } from '../../redux/store';
+import { useDispatch } from 'react-redux';
 
-    const requests: whitelistRequests = {data: [{name: 'a', address: ''}], success: true, error: 'nil'}
 
 const Whitelist = () => {
-    const onClick = async (request: any, isAccept: boolean) => {
-
+    const [requests, setRequests] = useState<whitelistRequests>()
+    const dispatch = useDispatch()
+    const fetch = async () => {
+        const data = await ETH.getRequests();
+        const balance = await ETH.getBalance();
+        dispatch(updateBalance({data: balance}))
+        setRequests(data)
+    }
+    useEffect(() => {
+        fetch()
+    }, [])
+    
+    const onClick = async (request: { address: string }, isAccept: boolean) => {
+        await ETH.handleRequest(request.address, isAccept)
+        await fetch()
     }
     return <div>
         {requests?.data.map((request) => <div>
